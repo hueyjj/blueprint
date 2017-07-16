@@ -1,0 +1,10 @@
+X   modify html elements and update
+X   capture mouse events
+    manage css layout (tabs, sidebar, main container)
+X   add objects to svg container
+    move entire container and individual objects
+    split window vertically, horizontally
+    shadow move -- don't place element until mouseup, move shadow copy image
+    on hover pop up text
+    on mouse click element, center canvas to mouse clicked element
+

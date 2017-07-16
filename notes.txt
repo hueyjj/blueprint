@@ -1,0 +1,22 @@
+Target platform:
+    Linux, Windows, Electron-compatible
+
+Purpose:
+    A multi-task tool to help virtually track and document the current state 
+    of the user. 
+    Ultimately, the tool is to reflect the absolute distillation 
+    of the user's abilities, provide a context to construct improvements, 
+    and give an informal, informational insight of the user.
+
+Features:
+    [Skill set] Map out a skill tree of current skills
+        -Individual sections
+
+    [Thoughts] Branch thoughts with logical paths
+
+    [Guide] Goal 
+
+    [Default routine]
+
+    [Cards]
+

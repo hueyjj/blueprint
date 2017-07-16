@@ -1,0 +1,35 @@
+.sidebar {
+    /*height: 100%;*/
+    position: absolute;
+    width: 50px;
+    background-color: #b9f2ff;
+    box-shadow: 5px 5px 3px grey;
+    padding: 0;
+    z-index: 999;
+}
+
+.sidebar-list {
+    padding: 0;
+    margin: 0;
+}
+
+.list-item {
+    user-select: none;
+}
+
+.list-item:hover {
+    background-color: lightgrey;
+}
+
+.list-item:active {
+    background-color: grey;
+}
+
+.user-button {
+    list-style: url("../res/A.png") inside;
+}
+
+#add-button {
+    list-style: url("../res/Add.png") inside;
+}
+

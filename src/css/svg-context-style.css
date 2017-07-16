@@ -1,0 +1,14 @@
+.svg-box {
+    height: 100%;
+    width: 100%;
+    background-image: repeating-linear-gradient(to right, rgba(255,255,255,.05) 0, rgba(255,255,255,.05) 1px, transparent 0, transparent 20px),
+                repeating-linear-gradient(to bottom, rgba(255,255,255,.05) 0, rgba(255,255,255,.05) 1px, transparent 0, transparent 20px);
+}
+
+.svg-container {
+    position: absolute;
+    background-image:linear-gradient(#434343, #282828);
+    height: 100%;
+    width: 100%;
+    float: right;
+}
