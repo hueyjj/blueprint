@@ -1,21 +1,20 @@
 function ContextMenu() {
-    container: null;
-    menu: null;
-    visible: false;
+    this.menu = document.createElement("ul");
+    this.menu.className = "menu";
+    this.menu.id = "right-click-menu";
 
-    isVisible: null;
+    this.visible = false;
+
+    container: null;
+
     newItem: null;
     addItem: null;
     show: null;
     hide: null;
 }
 
-ContextMenu.prototype.menu = document.createElement("ul");
-ContextMenu.prototype.menu.className = "menu";
-ContextMenu.prototype.menu.id = "right-click-menu";
-
 ContextMenu.prototype.isVisible = function () {
-    return this.visible || document.getElementsByClassName("menu").length > 0;
+    return this.visible;
 }
 
 ContextMenu.prototype.newItem = function (text) {
@@ -45,9 +44,9 @@ ContextMenu.prototype.show = function (x, y) {
 
 ContextMenu.prototype.hide = function () {
     this.menu.style.display = "none";
-    document.body.removeChild(this.menu);
-
     this.visible = false;
+
+    document.body.removeChild(this.menu);
 }
 
 module.exports = ContextMenu;

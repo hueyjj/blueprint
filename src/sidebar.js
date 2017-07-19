@@ -33,6 +33,8 @@ Sidebar.prototype.list.appendChild(addBtn);
 Sidebar.prototype.container.appendChild(Sidebar.prototype.list);
 
 Sidebar.prototype.newButton = function (attr) {
+    var that = this;
+
     var btn = document.createElement("li");
     btn.className = "list-item list-button user-button";
     btn.role = "button";
@@ -53,17 +55,29 @@ Sidebar.prototype.newButton = function (attr) {
         btn.title = "No title given";
     }
     
-    btn.context = null; //holds reference to a context element e.g svg container
+    btn.context = null; //holds reference to a context object e.g svg object 
 
-    btn.onclick = function () { //switch to context
-        var context = document.getElementsByClassName("current-context");
+    btn.onclick = function () { 
+        //wipe current context
+        var context = document.getElementsByClassName("sub-container");
         for (var i = 0; i < context.length; i++) {
             context[i].classList.remove("current-context");
         }
+        for (var i = 0; i < context.length; i++) {
+            document.getElementById("default-main-container").removeChild(context[i]);
+        }
 
-        if (this.context) {
-            this.context.classList.append("current-context");
-            document.getElementById("main-container").appendChild(this.context);
+        //TODO fix hover and active state of the buttons
+        //set current context
+        if (this.context.container) {
+            this.context.container.classList.add("current-context");
+            document.getElementById("default-main-container").appendChild(this.context.container);
+           
+            //turn off other buttons 
+            for (var b in that.buttons) {
+                that.buttons[b].style.backgroundColor = "transparent";
+            }
+            btn.style.backgroundColor = "lightgrey";
         }
     }
 

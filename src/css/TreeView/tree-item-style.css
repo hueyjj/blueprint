@@ -1,0 +1,47 @@
+.tree-item {
+    list-style: none;
+    /*margin-left: 15px;*/
+    width: 100%;
+    padding-left: 0;
+    user-select: none;
+    font: 1em "Open Sans", sans-serif;
+    /*color: rgb(170, 202, 226);*/
+    color: black;
+    border-left: 1px dashed grey;
+}
+
+.tree-item > span {
+    white-space: nowrap;
+}
+
+.tree-item-container {
+}
+
+.tree-item-container > span:before {
+    display: inline-block;
+    content: "";
+    width: 15px;
+    height: 15px;
+    background-color: orange;
+    border-radius: 50%; 
+    position: relative;
+    margin-right: 5px;
+    margin-left: 1.5em;
+}
+
+.tree-item-container:not(.selected) > span:hover {
+	transition: all ease 0.3s;
+    background: linear-gradient(270deg, #cc98ff, transparent);
+    border-radius: 1em;
+    padding-right: 15px;
+}
+
+.tree-item-container.selected {
+    color: white;
+    display: block;
+    transition: all 0.3s ease-out;
+    /*background-color: rgba(244, 66, 119, .75);*/
+    background: linear-gradient(90deg, rgba(255, 66, 119, .75), transparent);
+
+    border-radius: 15px 0 0 15px;
+}

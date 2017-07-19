@@ -1,0 +1,25 @@
+.menu {
+    user-select: none;
+    display: none;
+    position: absolute;
+    background-color: orange;
+    z-index: 999;
+    margin-top: 5px;
+    margin-left: 10px;
+    margin-bottom: 0;
+    margin-right: 0;
+    padding: 5;
+}
+
+.menu-item {
+    list-style: none;
+    cursor: pointer;
+}
+
+.menu-item:hover {
+    background-color: yellow;
+}
+
+.menu-item:active {
+    background-color: lightblue;
+}
