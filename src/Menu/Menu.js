@@ -1,5 +1,5 @@
 class Menu {
-    constructor() {
+    constructor(items) {
         this.element = document.createElement("div");
         this.element.classList = "menu menu-container";
 
@@ -7,6 +7,16 @@ class Menu {
         this.list.classList = "menu-list";
 
         this.element.appendChild(this.list);
+
+        if (items) {
+            //console.log(items);
+            //console.log(items.length);
+            for (let i = 0; i < items.length; i++) {
+                //console.log(items[i].name);
+                //console.log(items[i].fn);
+                this.append(items[i].name, items[i].fn);
+            }
+        }
     }
 
     append(text, fn) {
@@ -36,4 +46,5 @@ class Menu {
     }
 }
 
-module.exports = Menu;
+if (typeof module !== "undefined") 
+    module.exports = Menu;

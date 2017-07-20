@@ -7,7 +7,7 @@
     font: 1em "Open Sans", sans-serif;
     /*color: rgb(170, 202, 226);*/
     color: black;
-    border-left: 1px dashed grey;
+    border-left: 1px dotted grey;
 }
 
 .tree-item > span {

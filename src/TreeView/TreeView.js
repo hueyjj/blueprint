@@ -33,4 +33,5 @@ class TreeView {
     }
 }
 
-module.exports = TreeView;
+if (typeof module !== "undefined") 
+    module.exports = TreeView;

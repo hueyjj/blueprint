@@ -22,12 +22,12 @@ class TreeHeader {
         this.div.appendChild(this.span);
         this.element.appendChild(this.div);
         this.element.appendChild(this.list);
-
+        
         let defaultToggle = this.toggle.bind(this);
         let defaultSelect = this.setSelect.bind(this);
         this.element.onclick = function (e) {
             defaultSelect();
-            defaultToggle();
+            defaultToggle();    
             e.stopPropagation();
         };
     }
@@ -119,4 +119,6 @@ class TreeHeader {
     }
 }
 
-module.exports = TreeHeader;
+
+if (typeof module !== "undefined") 
+    module.exports = TreeHeader;

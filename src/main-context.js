@@ -15,29 +15,29 @@ var header = new TreeHeader("HeaderOne"),
     header2 = new TreeHeader("HeaderTwo");
 var item = new TreeItem("ItemOne", header),
     item2 = new TreeItem("ItemTwo", header2);
-item.onClick(function (e) {
+item.onClick(function (event) {
     console.log("before change: " + item.getText() + " clicked");
     item.setText("different text");
     console.log("after change: " + item.getText() + " clicked");
-    e.stopPropagation();
+    event.stopPropagation();
 });
-item2.onClick(function (e) {
+item2.onClick(function (event) {
     console.log("before change: " + item2.getText() + " clicked");
     item2.setText("different text");
     console.log("after change: " + item2.getText() + " clicked");
-    e.stopPropagation();
+    event.stopPropagation();
 });
-header.onClick(function (e) {
+header.onClick(function (event) {
     console.log(header.text + " clicked");
-    e.stopPropagation();
+    event.stopPropagation();
 });
-//header2.onClick(function (e) {
+//header2.onClick(function (event) {
 //    console.log(header2.text + " clicked");
-//    e.stopPropagation();
+//    event.stopPropagation();
 //});
-tree.onClick(function (e) {
+tree.onClick(function (event) {
     console.log("tree clicked");
-    e.stopPropagation();
+    event.stopPropagation();
 });
 
 header.append(item);
@@ -69,9 +69,9 @@ tree.append(rootHeader);
 //long vertical list
 for (let i = 0; i < 100; i++) {
     let headerX = new TreeHeader("Header X " + i);
-    headerX.onClick(function (e) {
+    headerX.onClick(function (event) {
         console.log(headerX.text + " clicked");
-        e.stopPropagation();
+        event.stopPropagation();
     });
     tree.append(headerX);
 }
@@ -79,15 +79,20 @@ for (let i = 0; i < 100; i++) {
 mainContainer.append(tree.element);
 document.body.append(mainContainer);
 
-var menu = new Menu();
-menu.append("new context", function (e) {
-    console.log("new context");
-    e.stopPropagation();
-});
-menu.append("new context 2", function (e) {
-    console.log("new context 2");
-    e.stopPropagation();
-});
+var menu = new Menu([
+    {
+        name: "text", fn: function (event) { 
+            console.log("text");
+            event.stopPropagation();
+        }
+    },
+    {
+        name: "next", fn: function (event) {
+            console.log("next");
+            event.stopPropagation();
+        }
+    },
+]);
 
 header2.setMenu(menu)
 header2.onMenu(function (event) {
@@ -125,7 +130,7 @@ document.body.onclick = function (event) {
 //    var item2= new TreeItem("item " + i, h);
 //    var item3= new TreeItem("item " + i, h);
 //    var item4= new TreeItem("item " + i, h);
-//    //item.onClick(function (e) { 
+//    //item.onClick(function (event) { 
 //    //    console.log("item " + i + " clicked");
 //    //});
 //    h.append(item);
@@ -143,9 +148,9 @@ document.body.onclick = function (event) {
 ////long vertical list
 //for (let i = 0; i < 100; i++) {
 //    let headerX = new TreeHeader("Header X " + i);
-//    headerX.onClick(function (e) {
+//    headerX.onClick(function (event) {
 //        console.log(headerX.text + " clicked");
-//        e.stopPropagation();
+//        event.stopPropagation();
 //    });
 //    tree.append(headerX);
 //}
@@ -186,8 +191,8 @@ document.body.onclick = function (event) {
 //    sidebar.menu.show(x, y); //open option menu
 //}
 //
-//document.body.onmousedown = function (e) {
-//    var ele = document.elementFromPoint(e.clientX, e.clientY);
+//document.body.onmousedown = function (event) {
+//    var ele = document.elementFromPoint(event.clientX, event.clientY);
 //    if ( !(ele.classList.contains("menu-item") || ele.classList.contains("menu")) ) {
 //        if (sidebar.menu.isVisible()) {
 //            sidebar.menu.hide();
@@ -211,35 +216,35 @@ document.body.onclick = function (event) {
 //    var svgMenu = new ContextMenu();
 //
 //    var circleOption = svgMenu.newItem("new circle");
-//    circleOption.onclick = function (e) { //TODO put creation at right click point
+//    circleOption.onclick = function (event) { //TODO put creation at right click point
 //        var circle = new Shape();
 //        circle.shape = circle.Enum.CIRCLE;
-//        circle.ele = circle.newShape(e.clientX, e.clientY);
+//        circle.ele = circle.newShape(event.clientX, event.clientY);
 //        circle.parent = svg.group;
 //        circle.dragAttached = false;
 //        circle.dragHelper = null;
 //        circle.attachDragListener = function () {
-//            //circle.ele.addEventListener("mousemove", context.dragHelper = function (e) { //reference to function so we can remove later
-//            //    circle.translatePos(e.clientX, e.clientY);
+//            //circle.ele.addEventListener("mousemove", context.dragHelper = function (event) { //reference to function so we can remove later
+//            //    circle.translatePos(event.clientX, event.clientY);
 //            //});
-//            svg.container.onmousemove = function (e) { 
+//            svg.container.onmousemove = function (event) { 
 //                console.log("mouse move");
-//                circle.translatePos(e.clientX, e.clientY);
+//                circle.translatePos(event.clientX, event.clientY);
 //            };
 //        };
-//        circle.ele.onmousedown = function (e) {
+//        circle.ele.onmousedown = function (event) {
 //            console.log("mouse down");
-//            circle.x = e.clientX;
-//            circle.y = e.clientY;
+//            circle.x = event.clientX;
+//            circle.y = event.clientY;
 //            if (!circle.dragAttached) {
 //                console.log("drag attached");
 //                circle.attachDragListener();
 //                circle.dragAttached = true;
 //            }
-//            e.preventDefault();
-//            e.stopPropagation();
+//            event.preventDefault();
+//            event.stopPropagation();
 //        };
-//        circle.ele.onmouseup = function (e) { 
+//        circle.ele.onmouseup = function (event) { 
 //            console.log("mouseup");
 //            if (circle.dragAttached) {
 //                //circle.ele.removeEventListener("mousemove", svgContainer.dragHelper);
@@ -248,7 +253,7 @@ document.body.onclick = function (event) {
 //                svg.container.onmousemove = null;
 //                circle.dragAttached = false;
 //            }
-//            e.stopPropagation();
+//            event.stopPropagation();
 //        };
 //
 //        svg.group.appendChild(circle.ele);
@@ -259,8 +264,8 @@ document.body.onclick = function (event) {
 //
 //    svg.menu = svgMenu;
 //
-//    svg.box.oncontextmenu = function (e) {
-//        svg.menu.show(e.clientX, e.clientY);
+//    svg.box.oncontextmenu = function (event) {
+//        svg.menu.show(event.clientX, event.clientY);
 //    };
 //    
 //    return svg;

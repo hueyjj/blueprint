@@ -68,4 +68,6 @@ class TreeItem {
     }
 }
 
-module.exports = TreeItem;
+
+if (typeof module !== "undefined") 
+    module.exports = TreeItem;

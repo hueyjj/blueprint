@@ -15,7 +15,7 @@
 }
 
 .tree-view {
-    min-width: 250px;
+    min-width: 100%;
     width: auto;
     /*height: 100%;*/
     margin: 0;
@@ -29,7 +29,7 @@
 
 .root-tree-list {
     margin: 0;
-    min-width: 250px;
+    min-width: 100%;
     height: auto;
     width: auto;
     /*height: 100%;*/
