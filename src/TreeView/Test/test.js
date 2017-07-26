@@ -78,6 +78,4 @@ document.addEventListener("DOMContentLoaded", function () {
         });
         tree.append(headerX);
     }
-
-
 });

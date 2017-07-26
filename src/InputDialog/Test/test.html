@@ -4,12 +4,37 @@
     <script src="./test.js"></script>
     <style>
         body {
+            display: block;
+            width: 100%;
+            height: 100%;
             margin: 0;
             padding-bottom: 5px;
+            background-color: lightcyan;
+            font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+        }
+        #click-me {
+            position: absolute;
         }
     </style>
     <body>
-        <form>
-        </form>
+        <button id="click-me" type="button"> click me! </button>
+        <div class="dialog-container">
+        <div class="form-container">
+            <div class="close-container">
+                <button class="close-button" type="button"></button>
+            </div>
+            <form class="form">
+                <div class="form-input-container">
+                    <input class="form-input" id="text" type="text" placeholder="insert text">
+                </div>
+                <div class="form-input-container">
+                    <input class="form-input" id="text2" type="text" placeholder="insert text2">
+                </div>
+                <div class="form-submit">
+                    <button class="form-input submit" id="submit" type="button"> Submit </button>
+                </div>
+            </form>
+        </div>
+        </div>
     </body>
 </html>

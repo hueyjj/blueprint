@@ -1,0 +1,112 @@
+.close-container {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    display: inline-block;
+    background-color: transparent;
+}
+
+.close-button {
+    font-weight: bold;
+    font-size: 20px;
+    background-color: transparent;
+    border: 0;
+    opacity: .6;
+    cursor: pointer;
+}
+
+.close-button:before {
+    content: "\2716";
+}
+
+.close-button:focus {
+    outline: 0;
+}
+
+.close-button:active {
+    opacity: .2;
+}
+
+.dialog-container { 
+    position: absolute;
+    display: block;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, .7);
+    transition: opacity 500ms;
+    visibility: hidden;
+    z-index: 9999;
+}
+
+.form-container {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    width: 500px;
+    margin: 30px auto;
+    text-align: center;
+    background-color: rgba(224, 255, 255, 1);
+    border-radius: .5em;
+}
+
+.form {
+    position: relative;
+    margin: 0;
+    padding-left: 5em;
+    padding-right: 5em;
+    padding-top: 2em;
+    padding-bottom: 2em;
+}
+
+.form-input-container {
+    display: block;
+    margin-bottom: 1em;
+}
+
+.form-input-container .form-input {
+    background-color: inherit;
+    border: 0;
+    border-bottom: 1px solid rgba(0, 0, 0, .1);
+    font-size: 1em;
+    text-align: center;
+    line-height: 2em;
+    color: rgb(86, 86, 86);
+}
+
+.form-input-container .form-input:focus {
+    outline: 0;
+}
+
+.form-input-container input[type="text"]::-webkit-input-placeholder {
+    /*color: rgba(230, 143, 172, .7);*/
+    color: rgb(86, 86, 86);
+    letter-spacing: .1em;
+}
+
+.form-input-container input[type="text"]:focus::-webkit-input-placeholder {
+    color: transparent;
+}
+
+.form-submit {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.form-submit .form-input {
+    border: 0;
+    cursor: pointer;
+    outline: 0;
+    width: 100%;
+    font-size: large;
+    background-color: rgba(255, 196, 12, 1);
+    color: rgb(86, 86, 86);
+    padding: 10px 0;
+}
+
+.form-submit .form-input:focus {
+    outline: 0;
+}
+
+.form-submit .form-input:active {
+    background-color: rgba(255, 196, 12, .8);
+}

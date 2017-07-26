@@ -2,9 +2,6 @@ class InputDialog {
     constructor() {
     }
 
-    test() {
-    }
-
 }
 
 if (typeof module !== "undefined") 

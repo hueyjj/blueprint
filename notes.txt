@@ -20,3 +20,4 @@ Features:
 
     [Cards]
 
+Light-weight, sleek design something like -> https://github.com/clangen/musikcube
