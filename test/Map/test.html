@@ -1,0 +1,52 @@
+<html>
+    <script src="./test.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding-bottom: 5px;
+        }
+
+        .map-container {
+            /*background: rgba(44, 49, 52, 1);*/
+            background: lightblue;
+        }
+
+        .map {
+            width: 100%;
+            height: 100%;
+            border: 1px solid black;
+        }
+
+        .circle {
+            fill: orange;
+            cursor: pointer;
+        }
+
+        .circle-background {
+            fill: green;
+            translate(-50%, -50%);
+            animation-name: breath;
+            animation-duration: 7s;
+            animation-timing-function: ease-in-out;
+            animation-delay: 0s;
+            animation-iteration-count: infinite;
+        }
+
+        @keyframes breath {
+            0% {
+                opacity:  .1;
+            }
+
+            50% {
+                opacity:  1;
+            }
+
+            100% {
+                opacity:  .1;
+            }
+        }
+    </style>
+    
+<body>
+</body>
+</html>

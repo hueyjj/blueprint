@@ -8,3 +8,4 @@
 [ ] on hover pop up text
 [ ] on mouse click element, center canvas to mouse clicked element
 
+[ ] monitor performance, a little high cpu usage when focused but no usage when minimized (out of focus)

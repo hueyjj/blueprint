@@ -23,7 +23,8 @@ function createWindow () {
     mainWindow.loadURL(url.format({
         //pathname: path.join(__dirname, './src/InputDialog/Test/test.html'),
         //pathname: path.join(__dirname, './src/NavigationBar/Test/test.html'),
-        pathname: path.join(__dirname, './src/Menu/Test/test.html'),
+        //pathname: path.join(__dirname, './src/Menu/Test/test.html'),
+        pathname: path.join(__dirname, './Test/Map/test.html'),
         protocol: 'file:',
         slashes: true
     }))
