@@ -2,12 +2,18 @@ class Draggable {
     constructor(x, y, element, group) {
         this.x = x;
         this.y = y;
-        this.element = element;
+        this.element = null; 
         this.group = group;
     }
+
+    //can access parent variable directly, but left here just as a reminder
+    setElement(element) {
+        this.element = element;
+    }
     
-    startDragging() {
+    startDragging(x, y) {
         var that = this;
+        that.x = x; that.y = y;
         document.body.onmousemove = function (e) {
             that.translatePos(e.clientX, e.clientY);
         };
@@ -49,3 +55,6 @@ class Draggable {
         return matrix;
     }
 }
+
+if (typeof module !== "undefined")
+    module.exports = Draggable;

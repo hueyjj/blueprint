@@ -1,23 +1,20 @@
-const Shape = {
-    CIRCLE:         "CIRCLE",
-    TRIANGLE:       "TRIANGLE",
-    SQUARE:         "SQUARE",
-    PENTAGON:       "PENTAGON",
-}
+const Draggable = require("./Draggable.js");
 
-class MapItem {
-    
-    constructor(shape, x, y, group) {
-        this.x = x;
-        this.y = y;
-        this.group = group;
-        //this.dragging = false;
+class MapItem extends Draggable {
+    constructor(x, y, shape, group) {
+        super(x, y, null, group);
 
-        this.element = this.initEle(shape, x, y); //reference to element
+        this.element = this.initEle(shape, x, y);
 
         var that = this;
-        that.element.onmousedown = function (event) { that.startDragging(); event.stopPropagation(); };
-        that.element.onmouseup = function (event) { that.endDragging(); event.stopPropagation(); };
+        that.element.onmousedown = function (event) { 
+            that.startDragging(event.clientX, event.clientY); 
+            event.stopPropagation(); 
+        };
+        that.element.onmouseup = function (event) { 
+            that.endDragging(); 
+            event.stopPropagation(); 
+        };
 
         //TODO end dragging for all elements with one event listener later 
         //should have some sort of data structure to reference all the map items
@@ -77,51 +74,13 @@ class MapItem {
 
         return ele;
     }
+}
 
-    startDragging() {
-        //this.dragging = true;
-        var that = this;
-        document.body.onmousemove = function (e) {
-            that.translatePos(e.clientX, e.clientY);
-        };
-    }
-
-    endDragging() {
-        //this.dragging = false;
-        document.body.onmousemove = null;
-    }
-
-    translatePos(destX, destY) {
-        let dx = destX - this.x,
-            dy = destY - this.y;
-
-        let originalPos = this.getMatrix(this.element),
-            zoom = this.getMatrix(this.group);
-
-        // Scale down/up translation distance for zoom
-        if (this.element == this.parent) {
-            dx += originalPos[4]; 
-            dy += originalPos[5];
-        }
-        else {
-            dx = originalPos[4] + (dx / zoom[0]); //zoom scale factor
-            dy = originalPos[5] + (dy / zoom[3]);
-        }
-
-        let matrixValue = `matrix(${originalPos[0]} ${originalPos[1]} ${originalPos[2]} ${originalPos[3]} ${dx} ${dy})`;
-
-        this.x = destX;
-        this.y = destY;
-        this.element.setAttribute("transform", matrixValue); 
-    }
-
-    getMatrix(e) {
-        let matrix = e.getAttribute("transform").slice("matrix(".length, -1).split(' ');
-        for (let i = 0; i < matrix.length; i++) {
-            matrix[i] = parseFloat(matrix[i]);
-        }
-        return matrix;
-    }
+const Shape = {
+    CIRCLE:         "CIRCLE",
+    TRIANGLE:       "TRIANGLE",
+    SQUARE:         "SQUARE",
+    PENTAGON:       "PENTAGON",
 }
 
 if (typeof module !== "undefined") {

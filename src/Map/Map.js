@@ -1,5 +1,9 @@
-class Map {
+const Draggable = require("./Draggable");
+
+class Map extends Draggable{
     constructor() {
+        super(0, 0, null, null); 
+        
         this.container = document.createElement("div");
         this.container.classList       = "map-container";
 
@@ -14,6 +18,18 @@ class Map {
         this.container.appendChild(this.map);
 
         this.menu = null;
+       
+        this.element = this.group;
+
+        var that = this;
+        this.map.onmousedown = function (event) { 
+            that.startDragging(event.clientX, event.clientY); 
+            event.stopPropagation(); 
+        };
+        this.map.onmouseup = function (event) { 
+            that.endDragging();
+            event.stopPropagation(); 
+        };
     }
 
     append(item) {
