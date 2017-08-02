@@ -1,11 +1,15 @@
-const Draggable = require("./Draggable.js");
+const { Draggable } = require("./Draggable.js");
 
 class MapItem extends Draggable {
     constructor(x, y, shape, group) {
         super(x, y, null, group);
 
-        this.element = this.initEle(shape, x, y);
+        this.pressed = false;
+        this.connecting = false;
+       
+        this.element = this.initEle(shape, x, y); //super class
 
+        //Dragging
         var that = this;
         that.element.onmousedown = function (event) { 
             that.startDragging(event.clientX, event.clientY); 
@@ -22,15 +26,12 @@ class MapItem extends Draggable {
         document.addEventListener("mouseleave", () => { that.endDragging(); });
     }
 
-    // Returns polygon, circle, rectangle element
     initEle(sh, x, y) {
-        var ele = null; //groups shape and bg
+        var ele = null; //Groups shape and bg
         var shape = null;
         var bg = null;
         
         if (Shape.CIRCLE == sh) {
-            ele = document.createElementNS("http://www.w3.org/2000/svg", "g");
-            ele.classList = "map-item";
             shape = document.createElementNS("http://www.w3.org/2000/svg", "circle");
             shape.classList = "circle";
             shape.setAttribute("cx", x);
@@ -62,7 +63,10 @@ class MapItem extends Draggable {
             return;
         }
 
-        if (ele && shape && bg) {
+        if (shape && bg) {
+            ele = document.createElementNS("http://www.w3.org/2000/svg", "g");
+            ele.classList = "map-item";
+            ele.setAttribute("tabindex", 0);
             ele.setAttribute("transform", `matrix(1 0 0 1 0 0)`);
             ele.appendChild(bg);
             ele.appendChild(shape);
@@ -83,9 +87,8 @@ const Shape = {
     PENTAGON:       "PENTAGON",
 }
 
-if (typeof module !== "undefined") {
+if (typeof module !== "undefined")
     module.exports = {
         MapItem,
         Shape,
     };
-}
