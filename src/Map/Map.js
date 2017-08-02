@@ -98,8 +98,10 @@ class Map extends Draggable{
         path.setAttribute("d", "M 0,0 L 0,0");
         path.setAttribute("stroke", "red");
 
-        fromItem.connection = toItem.connection = path;
-
+        //fromItem.connection = toItem.connection = path;
+        fromItem.addConnection(path);
+        toItem.addConnection(path); 
+        
         //Hack? or keep perm to draw path connection
         fromItem.translate(fromItem.x, fromItem.y);
         toItem.translate(toItem.x, toItem.y);

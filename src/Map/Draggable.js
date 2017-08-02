@@ -52,24 +52,42 @@ class Draggable {
         this.element.setAttribute("transform", matrixValue); 
 
         //Handle connection here
-        if (this.connection) {
-            let old = this.connection.getAttribute("d").match(/[-+]?\d+/g);
-            let newX = this.getCenterX() - groupTrans[4],
-                newY = this.getCenterY() - groupTrans[5];
-            
-            //console.log("Prev -- %s, %s, %s, %s", old[0],old[1],old[2],old[3]);
-            //console.log("%s -- New: %d, %d Center: %d, %d Translation: %d, %d", 
-                //this.connectionType, newX, newY, this.getCenterX(), this.getCenterY(), groupTrans[4], groupTrans[5]);
-            if (this.connectionType == ConnectionType.START) {
-                this.connection.setAttribute("d", `M ${newX}, ${newY} L ${old[2]}, ${old[3]}`);
-                //console.log(this.connection.getAttribute("d"));
-            }
-            else if (this.connectionType == ConnectionType.END) {
-                this.connection.setAttribute("d", `M ${old[0]}, ${old[1]} L ${newX}, ${newY}`);
-                //console.log(this.connection.getAttribute("d"));
-            }
-            else {
-                //Invalid connection
+        //if (this.connection) {
+        //    let old = this.connection.getAttribute("d").match(/[-+]?\d+/g);
+        //    let newX = this.getCenterX() - groupTrans[4],
+        //        newY = this.getCenterY() - groupTrans[5];
+        //    
+        //    //console.log("Prev -- %s, %s, %s, %s", old[0],old[1],old[2],old[3]);
+        //    //console.log("%s -- New: %d, %d Center: %d, %d Translation: %d, %d", 
+        //        //this.connectionType, newX, newY, this.getCenterX(), this.getCenterY(), groupTrans[4], groupTrans[5]);
+        //    if (this.connectionType == ConnectionType.START) {
+        //        this.connection.setAttribute("d", `M ${newX}, ${newY} L ${old[2]}, ${old[3]}`);
+        //        //console.log(this.connection.getAttribute("d"));
+        //    }
+        //    else if (this.connectionType == ConnectionType.END) {
+        //        this.connection.setAttribute("d", `M ${old[0]}, ${old[1]} L ${newX}, ${newY}`);
+        //        //console.log(this.connection.getAttribute("d"));
+        //    }
+        //    else {
+        //        //Invalid connection
+        //    }
+        //}
+
+        if (this.connections.length > 0) {
+            for (let i = 0; i < this.connections.length; ++i) {
+                let old = this.connections[i].getAttribute("d").match(/[-+]?\d+/g);
+                let newX = this.getCenterX() - groupTrans[4],
+                    newY = this.getCenterY() - groupTrans[5];
+                
+                if (this.connectionType == ConnectionType.START) {
+                    this.connections[i].setAttribute("d", `M ${newX}, ${newY} L ${old[2]}, ${old[3]}`);
+                }
+                else if (this.connectionType == ConnectionType.END) {
+                    this.connections[i].setAttribute("d", `M ${old[0]}, ${old[1]} L ${newX}, ${newY}`);
+                }
+                else {
+                    //Invalid connection
+                }
             }
         }
     }
@@ -99,6 +117,10 @@ class Draggable {
             //return rect.f;
             return rect.top + rect.height/2;
         }
+    }
+
+    addConnection(con) {
+        this.connections.push(con);
     }
 }
 
