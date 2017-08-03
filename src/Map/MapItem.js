@@ -67,7 +67,7 @@ class MapItem extends Draggable {
             ele = document.createElementNS("http://www.w3.org/2000/svg", "g");
             ele.classList = "map-item";
             ele.setAttribute("tabindex", 0);
-            ele.setAttribute("transform", `matrix(1 0 0 1 0 0)`);
+            ele.setAttribute("transform", `translate(0,0) scale(1,1)`);
             ele.appendChild(bg);
             ele.appendChild(shape);
         }

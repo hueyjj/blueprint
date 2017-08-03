@@ -6,16 +6,18 @@ class Draggable {
         this.dy = 0;
         this.element = null; 
         this.group = group;
-        this.connection = null;
+        //this.connection = null;
         this.connections = [];
-        this.connectionType = null;
+        //this.connectionType = null;
+        this.connecting = false;
+    
+        this.id = (function () {
+            var randomID = new Uint32Array(1);
+            window.crypto.getRandomValues(randomID);
+            return randomID;
+        })();
     }
 
-    //can access parent variable directly, but left here just as a reminder
-    setElement(element) {
-        this.element = element;
-    }
-    
     startDragging(x, y) {
         var that = this;
         that.x = x; that.y = y;
@@ -32,71 +34,116 @@ class Draggable {
         this.dx = destX - this.x;
         this.dy = destY - this.y;
 
-        let originalPos = this.getMatrix(this.element),
-            groupTrans = this.getMatrix(this.group);
+        let elementMatrix = this.matrix(this.element),
+            groupMatrix = this.matrix(this.group);
 
-        //Scale down/up translation distance for groupTrans
+        //Scale down/up translation distance for groupMatrix
         if (this.element == this.group) {
-            this.dx += originalPos[4]; 
-            this.dy += originalPos[5];
+            this.dx += elementMatrix[0]; 
+            this.dy += elementMatrix[1];
         }
         else {
-            this.dx = originalPos[4] + (this.dx / groupTrans[0]); //Zoom scale factor
-            this.dy = originalPos[5] + (this.dy / groupTrans[3]);
+            this.dx = elementMatrix[0] + (this.dx / groupMatrix[2]); //Zoom scale factor
+            this.dy = elementMatrix[1] + (this.dy / groupMatrix[3]);
         }
 
         this.x = destX;
         this.y = destY;
-        
-        let matrixValue = `matrix(${originalPos[0]} ${originalPos[1]} ${originalPos[2]} ${originalPos[3]} ${this.dx} ${this.dy})`;
+       
+        let matrixValue = `translate(${this.dx},${this.dy}) scale(${elementMatrix[2]},${elementMatrix[3]}) `;
         this.element.setAttribute("transform", matrixValue); 
 
         //Handle connection here
-        //if (this.connection) {
-        //    let old = this.connection.getAttribute("d").match(/[-+]?\d+/g);
-        //    let newX = this.getCenterX() - groupTrans[4],
-        //        newY = this.getCenterY() - groupTrans[5];
-        //    
-        //    //console.log("Prev -- %s, %s, %s, %s", old[0],old[1],old[2],old[3]);
-        //    //console.log("%s -- New: %d, %d Center: %d, %d Translation: %d, %d", 
-        //        //this.connectionType, newX, newY, this.getCenterX(), this.getCenterY(), groupTrans[4], groupTrans[5]);
-        //    if (this.connectionType == ConnectionType.START) {
-        //        this.connection.setAttribute("d", `M ${newX}, ${newY} L ${old[2]}, ${old[3]}`);
-        //        //console.log(this.connection.getAttribute("d"));
-        //    }
-        //    else if (this.connectionType == ConnectionType.END) {
-        //        this.connection.setAttribute("d", `M ${old[0]}, ${old[1]} L ${newX}, ${newY}`);
-        //        //console.log(this.connection.getAttribute("d"));
-        //    }
-        //    else {
-        //        //Invalid connection
-        //    }
-        //}
-
         if (this.connections.length > 0) {
+            //let temp = this.group.getAttribute("transform");
+            //this.group.setAttribute("transform", `translate(${this.dx},${this.dy}) scale(1,1)`);
             for (let i = 0; i < this.connections.length; ++i) {
-                let old = this.connections[i].getAttribute("d").match(/[-+]?\d+/g);
-                let newX = this.getCenterX() - groupTrans[4],
-                    newY = this.getCenterY() - groupTrans[5];
+                let con = this.connections[i];
+                let old = con.path.getAttribute("d").match(/[-+]?(\d+)?\.?\d+/g);
+                let newX = this.getCenterX() - groupMatrix[0],
+                    newY = this.getCenterY() - groupMatrix[1];
                 
-                if (this.connectionType == ConnectionType.START) {
-                    this.connections[i].setAttribute("d", `M ${newX}, ${newY} L ${old[2]}, ${old[3]}`);
+                //console.log("**************************************************");
+                //console.log("sub trans: %f, %f scale: %f, %f center: %f, %f", 
+                //    newX, newY, groupMatrix[2], groupMatrix[3], this.getCenterX(), this.getCenterY());
+                //console.log("new: %f, %f", newX, newY);
+                
+                //Match group scaling
+                newX = newX / groupMatrix[2];
+                newY = newY / groupMatrix[3];
+                
+                //console.log(this.element);
+                //console.log(this.element.getCTM());
+                //console.log(this.element.getScreenCTM());
+                //console.log(this.element.getBBox());
+                //console.log(this.element.getBoundingClientRect());
+                //newX = newX / this.element.getScreenCTM().a;
+                //newY = newY / this.element.getScreenCTM().a;
+                
+                //console.log("new: %f, %f", newX, newY);
+
+                if (con.type == ConnectionType.START) {
+                    con.path.setAttribute("d", `M ${newX}, ${newY} L ${old[2]}, ${old[3]}`);
                 }
-                else if (this.connectionType == ConnectionType.END) {
-                    this.connections[i].setAttribute("d", `M ${old[0]}, ${old[1]} L ${newX}, ${newY}`);
+                else if (con.type == ConnectionType.END) {
+                    con.path.setAttribute("d", `M ${old[0]}, ${old[1]} L ${newX}, ${newY}`);
                 }
                 else {
                     //Invalid connection
                 }
             }
+            //this.group.setAttribute("transform", temp);
         }
     }
 
-    getMatrix(e) {
-        let matrix = e.getAttribute("transform").slice("matrix(".length, -1).split(' ');
-        for (let i = 0; i < matrix.length; i++) {
-            matrix[i] = parseFloat(matrix[i]);
-        }
+    matrix(e) {
+        let matrixValue = e.getAttribute("transform").match(/\(([^)]+)\)/g);
+        let translateValue = matrixValue[0].split(',', 2);
+        let scaleValue = matrixValue[1].split(',', 2);
+
+        let translateValueX = translateValue[0].match(/[-+]?(\d+)?\.?\d+/),
+            translateValueY = translateValue[1].match(/[-+]?(\d+)?\.?\d+/);
+
+        let scaleValueX = scaleValue[0].match(/[-+]?(\d+)?\.?\d+/),
+            scaleValueY = scaleValue[1].match(/[-+]?(\d+)?\.?\d+/);
+        
+        //console.log("translate: %s, %s scale: %s, %s", 
+        //    translateValueX[0], translateValueY[0], scaleValueX[0], scaleValueY[0]);
+
+        let matrix = [
+            parseFloat(translateValueX[0]),
+            parseFloat(translateValueY[0]),
+            parseFloat(scaleValueX[0]),
+            parseFloat(scaleValueY[0]),
+        ];
+        return matrix;
+    }
+
+    getTranslate(e) {
+        let matrixValue = e.getAttribute("transform").match(/\(([^)]+)\)/g);
+        let translateValue = matrixValue[0].split(',', 2);
+
+        let translateValueX = translateValue[0].match(/[-+]?(\d+)?\.?\d+/),
+            translateValueY = translateValue[1].match(/[-+]?(\d+)?\.?\d+/);
+        
+        let matrix = [
+            parseFloat(translateValueX[0]),
+            parseFloat(translateValueY[0]),
+        ];
+        return matrix;
+    }
+
+    getScale(e) {
+        let matrixValue = e.getAttribute("transform").match(/\(([^)]+)\)/g);
+        let scaleValue = matrixValue[1].split(',', 2);
+
+        let scaleValueX = scaleValue[0].match(/[-+]?(\d+)?\.?\d+/),
+            scaleValueY = scaleValue[1].match(/[-+]?(\d+)?\.?\d+/);
+        
+        let matrix = [
+            parseFloat(scaleValueX[0]),
+            parseFloat(scaleValueY[0]),
+        ];
         return matrix;
     }
 
@@ -104,23 +151,34 @@ class Draggable {
     getCenterX() {
         if (this.element) {
             let rect = this.element.getBoundingClientRect();
-            //let rect = this.element.getCTM();
+            //console.log(rect);
+            //console.log("x:", rect.left + rect.width/2);
             return rect.left + rect.width/2;
-            //return rect.e;
         }
     }
 
     getCenterY() {
         if (this.element) {
             let rect = this.element.getBoundingClientRect();
-            //let rect = this.element.getCTM();
-            //return rect.f;
+            //console.log(rect);
+            //console.log("y:", rect.top + rect.height/2);
             return rect.top + rect.height/2;
         }
     }
 
-    addConnection(con) {
-        this.connections.push(con);
+    addConnection(link) {
+        if (!this.hasConnection(link.id)) {
+            this.connections.push(link);
+            return true;
+        }
+        return false;
+    }
+
+    hasConnection(id) {
+        for (let i = 0; i < this.connections.length; ++i) {
+            if (this.connections[i].id == id) return true;
+        }
+        return false;
     }
 }
 

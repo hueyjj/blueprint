@@ -13,7 +13,8 @@ class Map extends Draggable{
 
         this.group = document.createElementNS("http://www.w3.org/2000/svg", "g");
         this.group.classList = "map-controller";
-        this.group.setAttribute("transform", "matrix(1 0 0 1 0 0)");
+        //this.group.setAttribute("transform", "matrix(1 0 0 1 0 0)");
+        this.group.setAttribute("transform", "translate(0,0) scale(1,1)");
         
         this.connectors = document.createElementNS("http://www.w3.org/2000/svg", "g");
         this.connectors.classList = "map-connectors";
@@ -40,12 +41,46 @@ class Map extends Draggable{
             //that.connectors.setAttribute("transform", `translate(-${that.dx}, -${that.dy})`);
             event.stopPropagation(); 
         };
+    
+        //Scroll wheel zoom
+        this.container.addEventListener("wheel", function (event) {
+            /* 
+                NOTE: Going below minimum scale/zoom size will result in the connection not
+                aligning correctly with the element's center. This is due to the pixel to svg
+                coordinate system translation not being accurate enough (most likely).  
+            */
+            let scale = 0.1, MIN_SZ = 0.55;
+            let matrix = that.matrix(that.group)
+            let scaleX, scaleY;
+            if (event.deltaY > 0) 
+            {
+                //Zoom out
+                if (matrix[2] - scale > MIN_SZ) // stop before inversion (neg. scale)
+                    scaleX = scaleY = matrix[2] - scale; 
+                else 
+                    scaleX = scaleY = MIN_SZ;
+            }
+            else
+            {
+                //Zoom in
+                scaleX = scaleY = matrix[2] + scale;
+            }
+            let matrixValue = `translate(${matrix[0]},${matrix[1]}) scale(${scaleX},${scaleY})`;
+            that.group.setAttribute("transform", matrixValue); 
+            //TODO translate zoomed in map smoother, not based on mouse location?
+            event.preventDefault();
+        });
     }
 
     append(item) {
         var map = this;
         map.items.push(item);
 
+        var clearQueue = () => {
+            for (let i = 0; i < map.items.length; ++i)
+                map.items[i].connecting = false;
+            map.connectQueue = [];
+        }
         item.element.addEventListener("keydown", function (event) {
             switch (event.key) {
                 case "Control":
@@ -61,6 +96,8 @@ class Map extends Draggable{
                             let toItem = map.connectQueue.shift();
                             map.connect(fromItem, toItem);
                             map.connectQueue.push(toItem);
+                            
+                            clearQueue();
                         }
                     }
                     break;
@@ -72,9 +109,7 @@ class Map extends Draggable{
             //Clear queue here
             switch (event.key) {
                 case "Control":
-                    for (let i = 0; i < map.items.length; ++i)
-                        map.items[i].connecting = false;
-                    map.connectQueue = [];
+                    clearQueue();
                     break;
                 default:
                     return;
@@ -91,16 +126,19 @@ class Map extends Draggable{
     }
 
     connect(fromItem, toItem) {
-        fromItem.connectionType = ConnectionType.START;
-        toItem.connectionType = ConnectionType.END;
+        //fromItem.connectionType = ConnectionType.START;
+        //toItem.connectionType = ConnectionType.END;
 
         let path = document.createElementNS("http://www.w3.org/2000/svg", "path");
         path.setAttribute("d", "M 0,0 L 0,0");
         path.setAttribute("stroke", "red");
 
         //fromItem.connection = toItem.connection = path;
-        fromItem.addConnection(path);
-        toItem.addConnection(path); 
+        let link1 = fromItem.addConnection( {path, id: toItem.id, type: ConnectionType.START} ),
+            link2 = toItem.addConnection( {path, id: fromItem.id, type: ConnectionType.END} ); 
+
+        if (!(link1 && link2)) 
+            return;
         
         //Hack? or keep perm to draw path connection
         fromItem.translate(fromItem.x, fromItem.y);
