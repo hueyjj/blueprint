@@ -77,7 +77,7 @@ class Map extends Draggable{
         item.element.addEventListener("keydown", function (event) {
             switch (event.key) {
                 case "Control":
-                    if (item.pressed && !item.connecting) {
+                    if (item.pressed && !item.connecting) { //CTRL + Click: Add item for connection
                         item.pressed = false;
                         item.connecting = true;
                         
@@ -119,10 +119,38 @@ class Map extends Draggable{
     }
 
     connect(fromItem, toItem) {
+        let that = this;
         let path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        path.classList = "map-item-path";
+        path.setAttribute("tabindex", 0);
         path.setAttribute("d", "m 0,0 l 0,0");
-        path.setAttribute("stroke", "red");
+        path.addEventListener("mousedown", function (event) {
+            path.pressed = true;
+            path.setAttribute("style", "outline: none;");
+        });
+        path.addEventListener("mouseup", function (event) {
+            path.pressed = false;
+            path.setAttribute("style", "");
+        });
+        path.addEventListener("keydown", function (event) {
+            switch (event.key) {
+                case "Control":
+                    if (path.pressed) { //CTRL + Click: Remove path from both items
+                        path.pressed = false;
+                        
+                        fromItem.removeConnection(toItem.id);
+                        toItem.removeConnection(fromItem.id);
+                        //console.log("removing item id (%d) from item (%d)", toItem.id[0], fromItem.id[0]);
+                        //console.log("removing item id (%d) from item (%d)", fromItem.id[0], toItem.id[0]);
+                        that.connectors.removeChild(path);
+                    }
+                    break;
+                default:
+                    return;
+            }
+        });
 
+        //console.log("connecting from Item (%d) to Item (%d)", fromItem.id[0], toItem.id[0]);
         let link1 = fromItem.addConnection({ 
                 path, 
                 id: toItem.id, 
@@ -146,7 +174,7 @@ class Map extends Draggable{
         fromItem.translate(fromItem.x, fromItem.y);
         toItem.translate(toItem.x, toItem.y);
 
-        this.connectors.appendChild(path);
+        that.connectors.appendChild(path);
     }
 }
 

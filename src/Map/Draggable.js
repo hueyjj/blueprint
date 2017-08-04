@@ -8,9 +8,7 @@ class Draggable {
         this.dy = 0;
         this.element = null; 
         this.group = group;
-        //this.connection = null;
         this.connections = [];
-        //this.connectionType = null;
         this.connecting = false;
     
         this.id = (function () {
@@ -35,8 +33,6 @@ class Draggable {
     translate(destX, destY) {
         this.dx = destX - this.x;
         this.dy = destY - this.y;
-        let f = this.dx;
-        let e = this.dy;
 
         let elementMatrix = this.matrix(this.element),
             groupMatrix = this.matrix(this.group);
@@ -156,6 +152,18 @@ class Draggable {
             return true;
         }
         return false;
+    }
+
+    removeConnection(id) {
+        //console.log("removing..");
+        if (this.hasConnection(id)) {
+            let index;
+            for (let i = 0; i < this.connections.length; ++i) {
+                if (this.connections[i].id == id) index = i;
+            }
+            this.connections.splice(index, 1);
+            //console.log("remove ok");
+        }
     }
 
     hasConnection(id) {

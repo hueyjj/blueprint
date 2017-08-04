@@ -45,7 +45,7 @@ class MapItem extends Draggable {
         }
         else if (Shape.TRIANGLE == sh) {
             shape = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
-            //TODO implement this
+            //TODO Implement this
         }
         else if (Shape.SQUARE == sh) {
             shape = document.createElementNS("http://www.w3.org/2000/svg", "rect");
@@ -56,7 +56,7 @@ class MapItem extends Draggable {
         }
         else if (Shape.PENTAGON == sh) {
             shape = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
-            //TODO implement this
+            //TODO Implement this
         }
         else {
             console.error("[error] no shape for " + sh);

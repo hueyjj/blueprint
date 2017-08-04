@@ -1,12 +1,12 @@
-[ ] fix path not centering in element issue
 [ ] on hover pop up text
 [ ] on menu item click element, center canvas to mouse clicked element
-[ ] change breathing animation timing, i.e do not be in sync for more "life-like" feel
+[ ] change breathing animation timing, i.e do not be in sync for more "life-like" feel -- have to use javascript for this
+[ ] undo/redo function
 
 [ ] monitor performance, a little high cpu usage when focused but no usage when minimized (out of focus)
-[ ] shadow move -- don't place element until mouseup, move shadow copy image
 
 [X] modify html elements and update
 [X] capture mouse events
 [X] manage css layout (tabs, sidebar, main container)
 [X] add objects to svg container
+[X] fix path not centering in element issue

@@ -8,7 +8,7 @@
 
         .map-container {
             /*background: rgba(44, 49, 52, 1);*/
-            background: lightblue;
+            background: #2B3033;
         }
 
         .map {
@@ -19,32 +19,41 @@
         }
 
         .circle {
-            /*fill: orange;*/
-            fill: transparent;
+            fill: #26C9E2;
             cursor: pointer;
         }
 
         .circle-background {
-            fill: rgba(255, 255, 255, .5);
+            fill: rgb(28, 144, 246);
             translate(-50%, -50%);
-            /*animation-name: breath;*/
+            animation-name: breath;
             animation-duration: 7s;
             animation-timing-function: ease-in-out;
             animation-delay: 0s;
             animation-iteration-count: infinite;
         }
 
+        .map-item-path {
+            stroke: #0C9CBD;
+            stroke-width: 1.5px;
+            cursor: pointer;
+        }
+        
+        .map-item-path:focus {
+            outline-color: yellow;
+        }
+
         @keyframes breath {
             0% {
-                opacity:  .1;
+                opacity: .3;
             }
 
             50% {
-                opacity:  1;
+                opacity: .1; 
             }
 
             100% {
-                opacity:  .1;
+                opacity: .3;
             }
         }
     </style>
