@@ -23,11 +23,10 @@ class TreeItem {
     }
 
     onClick(fn) {
-        var that = this; //TreeItem object
-        that.element.onclick = function (e) {
+        this.element.onclick = (function (e) {
             fn(e)
-            that.setSelect();
-        };
+            this.setSelect();
+        }).bind(this);
     }
 
     onMenu(fn) {

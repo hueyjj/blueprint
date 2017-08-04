@@ -19,11 +19,10 @@ class Draggable {
     }
 
     startDragging(x, y) {
-        var that = this;
-        that.x = x; that.y = y;
-        document.body.onmousemove = function (e) {
-            that.translate(e.clientX, e.clientY);
-        };
+        this.x = x; this.y = y;
+        document.body.onmousemove = (function (e) {
+            this.translate(e.clientX, e.clientY);
+        }).bind(this);
     }
 
     endDragging() {

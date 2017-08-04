@@ -31,12 +31,11 @@ class NavigationSubList {
     }
 
     onClick(fn) {
-        var that = this;
-        that.span.onclick = function (e) {
+        this.span.onclick = (function (e) {
             fn(e)
-            that.setSelect();
-            that.toggle();
-        };
+            this.setSelect();
+            this.toggle();
+        }).bind(this);
     }
 
     onMenu(fn) {

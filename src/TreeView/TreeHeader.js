@@ -33,12 +33,11 @@ class TreeHeader {
     }
 
     onClick(fn) {
-        var that = this; //TreeHeader object
-        that.element.onclick = function (e) {
+        this.element.onclick = (function (e) {
             fn(e)
-            that.setSelect();
-            that.toggle();
-        };
+            this.setSelect();
+            this.toggle();
+        }).bind(this);
     }
 
     onMenu(fn) {

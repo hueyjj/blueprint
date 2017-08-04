@@ -31,20 +31,19 @@ class Map extends Draggable{
         this.items = [];
 
         //Dragging
-        var that = this;
-        this.map.onmousedown = function (event) { 
-            that.startDragging(event.clientX, event.clientY); 
+        this.map.onmousedown = (function (event) { 
+            this.startDragging(event.clientX, event.clientY); 
             event.stopPropagation(); 
-        };
-        this.map.onmouseup = function (event) { 
-            that.endDragging();
+        }).bind(this);
+        this.map.onmouseup = (function (event) { 
+            this.endDragging();
             event.stopPropagation(); 
-        };
+        }).bind(this);
     
         //Scroll wheel zoom
-        this.container.addEventListener("wheel", function (event) {
+        this.container.addEventListener("wheel", (function (event) {
             let scale = 0.1, MIN_SZ = 0.10;
-            let matrix = that.matrix(that.group)
+            let matrix = this.matrix(this.group)
             let scaleX, scaleY;
             if (event.deltaY > 0) 
             {
@@ -60,9 +59,9 @@ class Map extends Draggable{
                 scaleX = scaleY = matrix[2] + scale;
             }
             let matrixValue = `translate(${matrix[0]},${matrix[1]}) scale(${scaleX},${scaleY})`;
-            that.group.setAttribute("transform", matrixValue); 
+            this.group.setAttribute("transform", matrixValue); 
             event.preventDefault();
-        });
+        }).bind(this));
     }
 
     append(item) {
@@ -119,7 +118,6 @@ class Map extends Draggable{
     }
 
     connect(fromItem, toItem) {
-        let that = this;
         let path = document.createElementNS("http://www.w3.org/2000/svg", "path");
         path.classList = "map-item-path";
         path.setAttribute("tabindex", 0);
@@ -132,7 +130,7 @@ class Map extends Draggable{
             path.pressed = false;
             path.setAttribute("style", "");
         });
-        path.addEventListener("keydown", function (event) {
+        path.addEventListener("keydown", (function (event) {
             switch (event.key) {
                 case "Control":
                     if (path.pressed) { //CTRL + Click: Remove path from both items
@@ -142,13 +140,13 @@ class Map extends Draggable{
                         toItem.removeConnection(fromItem.id);
                         //console.log("removing item id (%d) from item (%d)", toItem.id[0], fromItem.id[0]);
                         //console.log("removing item id (%d) from item (%d)", fromItem.id[0], toItem.id[0]);
-                        that.connectors.removeChild(path);
+                        this.connectors.removeChild(path);
                     }
                     break;
                 default:
                     return;
             }
-        });
+        }).bind(this));
 
         //console.log("connecting from Item (%d) to Item (%d)", fromItem.id[0], toItem.id[0]);
         let link1 = fromItem.addConnection({ 
@@ -174,7 +172,7 @@ class Map extends Draggable{
         fromItem.translate(fromItem.x, fromItem.y);
         toItem.translate(toItem.x, toItem.y);
 
-        that.connectors.appendChild(path);
+        this.connectors.appendChild(path);
     }
 }
 

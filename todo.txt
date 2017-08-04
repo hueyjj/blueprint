@@ -1,9 +1,10 @@
 [ ] on hover pop up text
 [ ] on menu item click element, center canvas to mouse clicked element
 [ ] change breathing animation timing, i.e do not be in sync for more "life-like" feel -- have to use javascript for this
-[ ] undo/redo function
 
 [ ] monitor performance, a little high cpu usage when focused but no usage when minimized (out of focus)
+
+[ ] Implement "Command Pattern" for undo/redo actions
 
 [X] modify html elements and update
 [X] capture mouse events

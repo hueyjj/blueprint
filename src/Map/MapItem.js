@@ -1,29 +1,31 @@
 const { Draggable } = require("./Draggable.js");
 
 class MapItem extends Draggable {
-    constructor(x, y, shape, group) {
+    constructor(tagName, x, y, shape, group) {
         super(x, y, null, group);
+
+        this.tagName = tagName;
 
         this.pressed = false;
         this.connecting = false;
-       
+
         this.element = this.initEle(shape, x, y); //super class
-
+        
         //Dragging
-        var that = this;
-        that.element.onmousedown = function (event) { 
-            that.startDragging(event.clientX, event.clientY); 
+        this.element.onmousedown = (function (event) { 
+            this.startDragging(event.clientX, event.clientY); 
             event.stopPropagation(); 
-        };
-        that.element.onmouseup = function (event) { 
-            that.endDragging(); 
+        }).bind(this);
+        this.element.onmouseup = (function (event) { 
+            this.endDragging(); 
             event.stopPropagation(); 
-        };
+        }).bind(this);
 
+        //NOTE If continue to drag off screen and then mouse returns to the map,
+        //the item will stick to the mouse without the mouse being down.
         //TODO end dragging for all elements with one event listener later 
         //should have some sort of data structure to reference all the map items
-        //temporary
-        document.addEventListener("mouseleave", () => { that.endDragging(); });
+        document.addEventListener("mouseleave", (() => { this.endDragging(); }).bind(this));
     }
 
     initEle(sh, x, y) {

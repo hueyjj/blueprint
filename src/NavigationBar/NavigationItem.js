@@ -19,11 +19,10 @@ class NavigationItem {
     }
 
     onClick(fn) {
-        var that = this; //TreeItem object
-        that.span.onclick = function (e) {
+        this.span.onclick = (function (e) {
             fn(e)
-            that.setSelect();
-        };
+            this.setSelect();
+        }).bind(this);
     }
 
     onMenu(fn) {
