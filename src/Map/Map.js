@@ -38,18 +38,12 @@ class Map extends Draggable{
         };
         this.map.onmouseup = function (event) { 
             that.endDragging();
-            //that.connectors.setAttribute("transform", `translate(-${that.dx}, -${that.dy})`);
             event.stopPropagation(); 
         };
     
         //Scroll wheel zoom
         this.container.addEventListener("wheel", function (event) {
-            /* 
-                NOTE: Going below minimum scale/zoom size will result in the connection not
-                aligning correctly with the element's center. This is due to the pixel to svg
-                coordinate system translation not being accurate enough (most likely).  
-            */
-            let scale = 0.1, MIN_SZ = 0.55;
+            let scale = 0.1, MIN_SZ = 0.10;
             let matrix = that.matrix(that.group)
             let scaleX, scaleY;
             if (event.deltaY > 0) 
@@ -67,7 +61,6 @@ class Map extends Draggable{
             }
             let matrixValue = `translate(${matrix[0]},${matrix[1]}) scale(${scaleX},${scaleY})`;
             that.group.setAttribute("transform", matrixValue); 
-            //TODO translate zoomed in map smoother, not based on mouse location?
             event.preventDefault();
         });
     }
@@ -126,17 +119,26 @@ class Map extends Draggable{
     }
 
     connect(fromItem, toItem) {
-        //fromItem.connectionType = ConnectionType.START;
-        //toItem.connectionType = ConnectionType.END;
-
         let path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-        path.setAttribute("d", "M 0,0 L 0,0");
+        path.setAttribute("d", "m 0,0 l 0,0");
         path.setAttribute("stroke", "red");
 
-        //fromItem.connection = toItem.connection = path;
-        let link1 = fromItem.addConnection( {path, id: toItem.id, type: ConnectionType.START} ),
-            link2 = toItem.addConnection( {path, id: fromItem.id, type: ConnectionType.END} ); 
-
+        let link1 = fromItem.addConnection({ 
+                path, 
+                id: toItem.id, 
+                origX: toItem.initX,
+                origY: toItem.initY,
+                getTranslatedValue: () => { return toItem.getTranslate(toItem.element); },
+                type: ConnectionType.START,
+            });
+        let link2 = toItem.addConnection({
+                path, 
+                id: fromItem.id, 
+                origX: fromItem.initX,
+                origY: fromItem.initY,
+                type: ConnectionType.END
+            }); 
+        
         if (!(link1 && link2)) 
             return;
         

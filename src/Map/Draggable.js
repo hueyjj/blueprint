@@ -1,5 +1,7 @@
 class Draggable {
     constructor(x, y, element, group) {
+        this.initX = x;
+        this.initY = y;
         this.x = x; //Do not use for real time update, not synced
         this.y = y;
         this.dx = 0;
@@ -33,6 +35,8 @@ class Draggable {
     translate(destX, destY) {
         this.dx = destX - this.x;
         this.dy = destY - this.y;
+        let f = this.dx;
+        let e = this.dy;
 
         let elementMatrix = this.matrix(this.element),
             groupMatrix = this.matrix(this.group);
@@ -55,44 +59,27 @@ class Draggable {
 
         //Handle connection here
         if (this.connections.length > 0) {
-            //let temp = this.group.getAttribute("transform");
-            //this.group.setAttribute("transform", `translate(${this.dx},${this.dy}) scale(1,1)`);
             for (let i = 0; i < this.connections.length; ++i) {
                 let con = this.connections[i];
                 let old = con.path.getAttribute("d").match(/[-+]?(\d+)?\.?\d+/g);
-                let newX = this.getCenterX() - groupMatrix[0],
-                    newY = this.getCenterY() - groupMatrix[1];
-                
-                //console.log("**************************************************");
-                //console.log("sub trans: %f, %f scale: %f, %f center: %f, %f", 
-                //    newX, newY, groupMatrix[2], groupMatrix[3], this.getCenterX(), this.getCenterY());
-                //console.log("new: %f, %f", newX, newY);
-                
-                //Match group scaling
-                newX = newX / groupMatrix[2];
-                newY = newY / groupMatrix[3];
-                
-                //console.log(this.element);
-                //console.log(this.element.getCTM());
-                //console.log(this.element.getScreenCTM());
-                //console.log(this.element.getBBox());
-                //console.log(this.element.getBoundingClientRect());
-                //newX = newX / this.element.getScreenCTM().a;
-                //newY = newY / this.element.getScreenCTM().a;
-                
-                //console.log("new: %f, %f", newX, newY);
+                let newX = this.initX + this.dx,
+                    newY = this.initY + this.dy;
 
                 if (con.type == ConnectionType.START) {
-                    con.path.setAttribute("d", `M ${newX}, ${newY} L ${old[2]}, ${old[3]}`);
+                    let conTransValue = con.getTranslatedValue();
+                    let oldX = con.origX + conTransValue[0];
+                    let oldY = con.origY + conTransValue[1];
+                    oldX -= newX, oldY -= newY;
+                    con.path.setAttribute("d", `m ${newX},${newY} l ${oldX},${oldY}`);
                 }
                 else if (con.type == ConnectionType.END) {
-                    con.path.setAttribute("d", `M ${old[0]}, ${old[1]} L ${newX}, ${newY}`);
+                    newX -= old[0], newY -= old[1];
+                    con.path.setAttribute("d", `m ${old[0]},${old[1]} l ${newX},${newY}`);
                 }
                 else {
                     //Invalid connection
                 }
             }
-            //this.group.setAttribute("transform", temp);
         }
     }
 
@@ -107,9 +94,6 @@ class Draggable {
         let scaleValueX = scaleValue[0].match(/[-+]?(\d+)?\.?\d+/),
             scaleValueY = scaleValue[1].match(/[-+]?(\d+)?\.?\d+/);
         
-        //console.log("translate: %s, %s scale: %s, %s", 
-        //    translateValueX[0], translateValueY[0], scaleValueX[0], scaleValueY[0]);
-
         let matrix = [
             parseFloat(translateValueX[0]),
             parseFloat(translateValueY[0]),
