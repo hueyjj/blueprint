@@ -2,8 +2,8 @@ class Draggable {
     constructor(x, y, element, group) {
         this.initX = x;
         this.initY = y;
-        this.x = x; //Do not use for real time update, not synced
-        this.y = y;
+        this.x = 0; //Do not use for real time update, not synced
+        this.y = 0;
         this.dx = 0;
         this.dy = 0;
         this.element = null; 
@@ -12,7 +12,7 @@ class Draggable {
         this.connecting = false;
     
         this.id = (function () {
-            var randomID = new Uint32Array(1);
+            let randomID = new Uint32Array(1);
             window.crypto.getRandomValues(randomID);
             return randomID;
         })();
@@ -52,24 +52,26 @@ class Draggable {
         let matrixValue = `translate(${this.dx},${this.dy}) scale(${elementMatrix[2]},${elementMatrix[3]}) `;
         this.element.setAttribute("transform", matrixValue); 
 
-        //Handle connection here
+        //Handle connections here
         if (this.connections.length > 0) {
             for (let i = 0; i < this.connections.length; ++i) {
-                let con = this.connections[i];
-                let old = con.path.getAttribute("d").match(/[-+]?(\d+)?\.?\d+/g);
-                let newX = this.initX + this.dx,
-                    newY = this.initY + this.dy;
+                let connection = this.connections[i];
+                let newX = this.dx,
+                    newY = this.dy;
 
-                if (con.type == ConnectionType.START) {
-                    let conTransValue = con.getTranslatedValue();
-                    let oldX = con.origX + conTransValue[0];
-                    let oldY = con.origY + conTransValue[1];
+                if (ConnectionType.START == connection.type) {
+                    let conValue = connection.getTranslatedValue(), 
+                        oldX = conValue[0], 
+                        oldY = conValue[1];
                     oldX -= newX, oldY -= newY;
-                    con.path.setAttribute("d", `m ${newX},${newY} l ${oldX},${oldY}`);
+                    connection.path.setAttribute("d", `m ${newX},${newY} l ${oldX},${oldY}`);
                 }
-                else if (con.type == ConnectionType.END) {
-                    newX -= old[0], newY -= old[1];
-                    con.path.setAttribute("d", `m ${old[0]},${old[1]} l ${newX},${newY}`);
+                else if (ConnectionType.END == connection.type) {
+                    let old = connection.path.getAttribute("d").match(/[-+]?(\d+)?\.?\d+/g),
+                        oldX = old[0],
+                        oldY = old[1];
+                    newX -= oldX, newY -= oldY;
+                    connection.path.setAttribute("d", `m ${oldX},${oldY} l ${newX},${newY}`);
                 }
                 else {
                     //Invalid connection
@@ -126,24 +128,28 @@ class Draggable {
         return matrix;
     }
 
-    //Without transformation
-    getCenterX() {
-        if (this.element) {
-            let rect = this.element.getBoundingClientRect();
-            //console.log(rect);
-            //console.log("x:", rect.left + rect.width/2);
-            return rect.left + rect.width/2;
-        }
-    }
+    //Without transformation (NOTE: do not use if element transformation includes scaling
+    //because element.getBoundingClientRect method uses DOM coordinate system. DOM to SVG system
+    //is _not_ accurate and will not produce the desired coordinates in the SVG system. e.g When
+    //an SVG is scaled to say .1 the DOM system will not be able to get the exact coordinate
+    //leading to a completely misplaced/miscentered element.
+    //getCenterX() {
+    //    if (this.element) {
+    //        let rect = this.element.getBoundingClientRect();
+    //        //console.log(rect);
+    //        //console.log("x:", rect.left + rect.width/2);
+    //        return rect.left + rect.width/2;
+    //    }
+    //}
 
-    getCenterY() {
-        if (this.element) {
-            let rect = this.element.getBoundingClientRect();
-            //console.log(rect);
-            //console.log("y:", rect.top + rect.height/2);
-            return rect.top + rect.height/2;
-        }
-    }
+    //getCenterY() {
+    //    if (this.element) {
+    //        let rect = this.element.getBoundingClientRect();
+    //        //console.log(rect);
+    //        //console.log("y:", rect.top + rect.height/2);
+    //        return rect.top + rect.height/2;
+    //    }
+    //}
 
     addConnection(link) {
         if (!this.hasConnection(link.id)) {

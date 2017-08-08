@@ -45,16 +45,14 @@ class Map extends Draggable{
             let scale = 0.1, MIN_SZ = 0.10;
             let matrix = this.matrix(this.group)
             let scaleX, scaleY;
-            if (event.deltaY > 0) 
-            {
+            if (event.deltaY > 0) {
                 //Zoom out
                 if (matrix[2] - scale > MIN_SZ) // stop before inversion (neg. scale)
                     scaleX = scaleY = matrix[2] - scale; 
                 else 
                     scaleX = scaleY = MIN_SZ;
             }
-            else
-            {
+            else {
                 //Zoom in
                 scaleX = scaleY = matrix[2] + scale;
             }
@@ -62,59 +60,57 @@ class Map extends Draggable{
             this.group.setAttribute("transform", matrixValue); 
             event.preventDefault();
         }).bind(this));
+
+        this.container.addEventListener("keyup", (function (event) {
+            switch (event.key) {
+                case "Alt": this.toggleAllTags();
+                default: return;
+            }
+        }).bind(this));
     }
 
     append(item) {
-        var map = this;
-        map.items.push(item);
+        this.items.push(item);
 
-        var clearQueue = () => {
-            for (let i = 0; i < map.items.length; ++i)
-                map.items[i].connecting = false;
-            map.connectQueue = [];
-        }
-        item.element.addEventListener("keydown", function (event) {
+        let clearQueue = (() => {
+            for (let i = 0; i < this.items.length; ++i)
+                this.items[i].connecting = false;
+            this.connectQueue = [];
+        }).bind(this);
+        
+        //TODO Put this in MapItem class instead, too much responsibility for Map class 
+        item.element.addEventListener("keydown", (function (event) {
             switch (event.key) {
                 case "Control":
-                    if (item.pressed && !item.connecting) { //CTRL + Click: Add item for connection
-                        item.pressed = false;
+                    if (!item.connecting) {
                         item.connecting = true;
-                        
-                        map.connectQueue.push(item);
+                        this.connectQueue.push(item);
 
                         //Try and consume when there's at least two map items in queue
-                        if (map.connectQueue.length > 1) {
-                            let fromItem = map.connectQueue.shift();
-                            let toItem = map.connectQueue.shift();
-                            map.connect(fromItem, toItem);
-                            map.connectQueue.push(toItem);
-                            
+                        if (this.connectQueue.length > 1) {
+                            let fromItem = this.connectQueue.shift();
+                            let toItem = this.connectQueue.shift();
+                            this.connect(fromItem, toItem);
+                            this.connectQueue.push(toItem);
                             clearQueue();
                         }
                     }
                     break;
-                default:
-                    return;
+                default: return;
             }
-        });
+        }).bind(this));
         item.element.addEventListener("keyup", function (event) {
-            //Clear queue here
             switch (event.key) {
-                case "Control":
-                    clearQueue();
-                    break;
-                default:
-                    return;
+                case "Control": clearQueue(); break;
+                default: return;
             }
         });
-        item.element.addEventListener("mousedown", function (event) {
-            item.pressed = true;
+        item.element.addEventListener("focus", function (event) { 
+            //Handle focus here
         });
-        item.element.addEventListener("mouseup", function (event) {
-            item.pressed = false;
-        });
-        
-        map.group.appendChild(item.element);
+
+        this.group.appendChild(item.element);
+        item.translate(item.initX, item.initY);
     }
 
     connect(fromItem, toItem) {
@@ -122,57 +118,64 @@ class Map extends Draggable{
         path.classList = "map-item-path";
         path.setAttribute("tabindex", 0);
         path.setAttribute("d", "m 0,0 l 0,0");
+        path.removeConnection = (function (fromItem, toItem) {
+            fromItem.removeConnection(toItem.id);
+            toItem.removeConnection(fromItem.id);
+            this.connectors.removeChild(path);
+        }).bind(this);
         path.addEventListener("mousedown", function (event) {
-            path.pressed = true;
             path.setAttribute("style", "outline: none;");
         });
         path.addEventListener("mouseup", function (event) {
-            path.pressed = false;
             path.setAttribute("style", "");
         });
-        path.addEventListener("keydown", (function (event) {
+        path.addEventListener("keydown", function (event) {
             switch (event.key) {
-                case "Control":
-                    if (path.pressed) { //CTRL + Click: Remove path from both items
-                        path.pressed = false;
-                        
-                        fromItem.removeConnection(toItem.id);
-                        toItem.removeConnection(fromItem.id);
-                        //console.log("removing item id (%d) from item (%d)", toItem.id[0], fromItem.id[0]);
-                        //console.log("removing item id (%d) from item (%d)", fromItem.id[0], toItem.id[0]);
-                        this.connectors.removeChild(path);
-                    }
-                    break;
-                default:
-                    return;
+                case "Control":     path.removeConnection(fromItem, toItem); break;
+                case "Backspace":   path.removeConnection(fromItem, toItem); break;
+                case "Delete":      path.removeConnection(fromItem, toItem); break;
+                default: return;
             }
-        }).bind(this));
+        });
 
         //console.log("connecting from Item (%d) to Item (%d)", fromItem.id[0], toItem.id[0]);
         let link1 = fromItem.addConnection({ 
-                path, 
+                type: ConnectionType.START,
+                path: path, 
                 id: toItem.id, 
                 origX: toItem.initX,
                 origY: toItem.initY,
                 getTranslatedValue: () => { return toItem.getTranslate(toItem.element); },
-                type: ConnectionType.START,
             });
         let link2 = toItem.addConnection({
-                path, 
+                type: ConnectionType.END,
+                path: path, 
                 id: fromItem.id, 
                 origX: fromItem.initX,
                 origY: fromItem.initY,
-                type: ConnectionType.END
             }); 
         
         if (!(link1 && link2)) 
             return;
-        
+       
         //Hack? or keep perm to draw path connection
         fromItem.translate(fromItem.x, fromItem.y);
         toItem.translate(toItem.x, toItem.y);
 
         this.connectors.appendChild(path);
+    }
+
+    toggleAllTags() {
+        for (let i = 0; i < this.items.length; ++i) {
+            if (!this.items[i].tagVisible) {
+                this.items[i].tagVisible = true; 
+                this.items[i].showTag();
+            }
+            else {
+                this.items[i].tagVisible = false;
+                this.items[i].hideTag();
+            }
+        }
     }
 }
 

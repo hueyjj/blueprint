@@ -1,6 +1,6 @@
-const NavigationBar = require("../NavigationBar.js");
-const NavigationSubList = require("../NavigationSubList.js");
-const NavigationItem = require("../NavigationItem.js");
+const NavigationBar = require("../../src/NavigationBar/NavigationBar.js");
+const NavigationSubList = require("../../src/NavigationBar/NavigationSubList.js");
+const NavigationItem = require("../../src/NavigationBar/NavigationItem.js");
 
 document.addEventListener("DOMContentLoaded", function () {
     var navBar = new NavigationBar();

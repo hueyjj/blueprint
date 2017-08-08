@@ -1,0 +1,11 @@
+Map should
+    -be draggable with all of its children
+    -be able to scale all of its children
+
+Map item should
+    -be draggable by itself
+    -have breathing background animation
+    -connectable to another map item
+    -disconnectable with another map item
+    
+
