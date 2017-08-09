@@ -80,6 +80,7 @@ class Draggable {
         }
     }
 
+    //TODO Optimize this.  
     matrix(e) {
         let matrixValue = e.getAttribute("transform").match(/\(([^)]+)\)/g);
         let translateValue = matrixValue[0].split(',', 2);

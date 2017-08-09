@@ -1,11 +1,14 @@
 const { Draggable, ConnectionType } = require("./Draggable.js");
 
-class Map extends Draggable{
-    constructor() {
+class Map extends Draggable {
+    constructor(path) {
         super(0, 0, null, null); 
         
+        this.mouseX = null;
+        this.mouseY = null;
+
         this.container = document.createElement("div");
-        this.container.classList       = "map-container";
+        this.container.classList = "map-container";
 
         this.map = document.createElementNS("http://www.w3.org/2000/svg", "svg");
         this.map.classList = "map";
@@ -13,15 +16,25 @@ class Map extends Draggable{
 
         this.group = document.createElementNS("http://www.w3.org/2000/svg", "g");
         this.group.classList = "map-controller";
-        //this.group.setAttribute("transform", "matrix(1 0 0 1 0 0)");
         this.group.setAttribute("transform", "translate(0,0) scale(1,1)");
         
         this.connectors = document.createElementNS("http://www.w3.org/2000/svg", "g");
         this.connectors.classList = "map-connectors";
 
-        this.group.appendChild(this.connectors);
-        this.map.appendChild(this.group);
+        //Path
+        this.mapLocationContainer = document.createElement("div");
+        this.mapLocationContainer.classList = "location-container";
+
+        this.location = document.createElement("span");
+        this.location.classList = "location"
+        this.location.textContent = path;
+
+        this.mapLocationContainer.appendChild(this.location);
+
+        this.container.appendChild(this.mapLocationContainer);
         this.container.appendChild(this.map);
+        this.map.appendChild(this.group);
+        this.group.appendChild(this.connectors);
 
         this.menu = null;
        
@@ -29,6 +42,15 @@ class Map extends Draggable{
 
         this.connectQueue = [];
         this.items = [];
+
+        this.tagName = null;
+
+        this.parentItem = null;
+
+        this.map.addEventListener("mousemove", (function(event) {
+            this.mouseX = event.clientX;
+            this.mouseY = event.clientY;
+        }).bind(this));
 
         //Dragging
         this.map.onmousedown = (function (event) { 
@@ -43,7 +65,7 @@ class Map extends Draggable{
         //Scroll wheel zoom
         this.container.addEventListener("wheel", (function (event) {
             let scale = 0.1, MIN_SZ = 0.10;
-            let matrix = this.matrix(this.group)
+            let matrix = this.matrix(this.group);
             let scaleX, scaleY;
             if (event.deltaY > 0) {
                 //Zoom out
@@ -63,7 +85,15 @@ class Map extends Draggable{
 
         this.container.addEventListener("keyup", (function (event) {
             switch (event.key) {
-                case "Alt": this.toggleAllTags();
+                case "Alt": this.toggleAllTags(); break;
+                case "n": 
+                    let translate = this.getTranslate(this.group);
+                    let locX = this.mouseX - translate[0],
+                        locY = this.mouseY - translate[1];
+                    let newItem = new MapItem("Sub item 1", locX, locY, Shape.CIRCLE, TagDirection.RIGHT, 
+                                               this.group, this, null);
+                    this.append(newItem);
+                    break;
                 default: return;
             }
         }).bind(this));
@@ -113,6 +143,23 @@ class Map extends Draggable{
         item.translate(item.initX, item.initY);
     }
 
+    remove(item) {
+        while (item.connections.length > 0) {
+            this.connectors.removeChild(item.connections[0].path);
+            item.connections[0].item.removeConnection(item.id);
+            item.removeConnection(item.connections[0].id);
+        }
+
+        let index = -1;
+        for (let i = 0; i < this.items.length; ++i) {
+            if (item == this.items[i]) {
+                index = i;
+            }
+        }
+        this.items.splice(index, 1);
+        this.group.removeChild(item.element);
+    }
+
     connect(fromItem, toItem) {
         let path = document.createElementNS("http://www.w3.org/2000/svg", "path");
         path.classList = "map-item-path";
@@ -146,6 +193,7 @@ class Map extends Draggable{
                 origX: toItem.initX,
                 origY: toItem.initY,
                 getTranslatedValue: () => { return toItem.getTranslate(toItem.element); },
+                item: toItem,
             });
         let link2 = toItem.addConnection({
                 type: ConnectionType.END,
@@ -153,6 +201,7 @@ class Map extends Draggable{
                 id: fromItem.id, 
                 origX: fromItem.initX,
                 origY: fromItem.initY,
+                item: fromItem,
             }); 
         
         if (!(link1 && link2)) 
@@ -177,7 +226,13 @@ class Map extends Draggable{
             }
         }
     }
+
+    setPath(path) {
+        this.location.textContent = path;
+    }
 }
 
 if (typeof module !== "undefined") 
     module.exports = Map;
+
+const { MapItem, Shape, TagDirection } = require("./MapItem.js"); 

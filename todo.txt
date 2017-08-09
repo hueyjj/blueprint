@@ -6,6 +6,10 @@
 
 [ ] Implement "Command Pattern" for undo/redo actions
 
+
+[ ] Linux handles key/mouse event differently than windows
+    [ ] Adjust how to capture key press (CTR + click) instead of relying on keyboard's continuous firing (if there are any, usually for windows)
+
 [X] modify html elements and update
 [X] capture mouse events
 [X] manage css layout (tabs, sidebar, main container)

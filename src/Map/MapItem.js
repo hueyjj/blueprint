@@ -1,12 +1,10 @@
+const Map = require("./Map.js");
 const { Draggable } = require("./Draggable.js");
 
 class MapItem extends Draggable {
-    constructor(tagName, x, y, shape, group, tagDirection) {
+    constructor(tagName, x, y, shape, tagDirection, group, map, parentMap) {
         super(x, y, null, group);
-
-        this.tagName = tagName;
-        this.tagDirection = TagDirection.LEFT; //tagDirection;
-
+        
         this.pressed = false;
         this.connecting = false;
 
@@ -15,15 +13,51 @@ class MapItem extends Draggable {
         this.background = e.bg;
         this.shape = e.shape;
         
+        this.tagName = tagName;
+        this.tagDirection = tagDirection;
+
         let t = this.initTag();
         this.tag = t.tag;
         this.tagContainer = t.tagContainer;
         this.tagTextContainer = t.tagTextContainer;
         this.tagText = t.tagText;
+        this.tagArrow = t.arrow;
         this.tagFocus = false;
         this.tagVisible = true;
         
         this.showTag();
+
+        this.parentMap = parentMap;
+        this.map = map;
+        this.childMap = null;
+       
+        //Element
+        this.element.onmouseover = (function (event) {
+        }).bind(this);
+        this.element.ondblclick = (function (event) {
+        }).bind(this);
+       
+        //Map
+        this.element.addEventListener("keydown", (function (event) {
+            switch (event.key) {
+                default: return;
+            }
+        }).bind(this));
+        this.element.addEventListener("keyup", (function (event) {
+            event.stopPropagation();
+            switch (event.key) {
+                case "Delete": this.map.remove(this);       break;
+                case "Backspace": this.map.remove(this);    break;
+                case "m": this.enterChildMap();             break;
+                default: return;
+            }
+        }).bind(this));
+        this.map.container.addEventListener("keydown", (function (event) {
+            switch (event.key) {
+                case "b": this.enterParentMap();    break;
+                default: return;
+            }
+        }).bind(this));
         
         //Dragging
         this.element.onmousedown = (function (event) { 
@@ -34,33 +68,37 @@ class MapItem extends Draggable {
             this.endDragging(); 
             event.stopPropagation(); 
         }).bind(this);
-        this.element.onmouseover = (function (event) {
-        }).bind(this);
-        this.element.onclick = (function (event) {
-        }).bind(this);
        
-        //TODO Implement tag position top and bottom, exclude left (too difficult to do)
         //Tag
         this.tagTextContainer.addEventListener("focusout", (function (event) {
             this.tagText.contentEditable = "false";
             this.tagFocus = false;
-            this.setTagDimensions();
+            //this.setTagDimensions();
         }).bind(this));
         this.tagTextContainer.addEventListener("dblclick", (function (event) {
             this.tagText.contentEditable = "true";
             this.tagText.focus();
             this.tagFocus = true;
         }).bind(this));
+        this.tagTextContainer.addEventListener("contextmenu", (function (event) {
+            this.toggleTagDirection();
+        }).bind(this));
         this.tagTextContainer.addEventListener("mousedown", (function (event) {
             if (this.tagFocus) event.stopPropagation();
         }).bind(this));
         this.tagTextContainer.addEventListener("keydown", (function (event) {
+        }).bind(this));
+
+        this.tagText.addEventListener("keydown", (function (event) {
+            event.stopPropagation();
             switch (event.key) {
                 case "Escape": this.tagText.blur();
                 default: return;
             }
         }).bind(this));
-
+        this.tagText.addEventListener("keyup", (function (event) {
+            event.stopPropagation();
+        }).bind(this));
 
         //NOTE If continue to drag off screen and then mouse returns to the map,
         //the item will stick to the mouse without the mouse being down.
@@ -137,7 +175,7 @@ class MapItem extends Draggable {
         //TODO Might have to handle line breaks
         let tagText = document.createElement("span");
         tagText.classList = "tag-text";
-        tagText.textContent = this.tagName ? this.tagName : "(empty)";
+        tagText.innerText = this.tagName ? this.tagName : "(empty)";
         tagText.contentEditable = "false";
 
         let arrowContainer = document.createElement("div");
@@ -148,17 +186,30 @@ class MapItem extends Draggable {
         if (TagDirection.RIGHT == this.tagDirection) {
             tag.setAttribute("x", "1em");
             tag.setAttribute("y", "-.5em");
+            tagContainer.classList.add("tag-container-right");
+            tagTextContainer.classList.add("text-container-right");
             arrow.classList = "arrow-right";
         }
         else if (TagDirection.LEFT == this.tagDirection) {
-            tag.setAttribute("x", "-2em");
+            tag.setAttribute("x", "-1em");
             tag.setAttribute("y", "-.5em");
             tagContainer.classList.add("tag-container-left");
+            tagTextContainer.classList.add("text-container-left");
             arrow.classList = "arrow-left";
         }
         else if (TagDirection.TOP == this.tagDirection) {
+            tag.setAttribute("x", "-.5em");
+            tag.setAttribute("y", "-3em");
+            tagContainer.classList.add("tag-container-top");
+            tagTextContainer.classList.add("text-container-top");
+            arrow.classList = "arrow-top";
         }
         else if (TagDirection.BOTTOM == this.tagDirection) {
+            tag.setAttribute("x", "-.5em");
+            tag.setAttribute("y", "1em");
+            tagContainer.classList.add("tag-container-bottom");
+            tagTextContainer.classList.add("text-container-bottom");
+            arrow.classList = "arrow-bottom";
         } 
         else {
             //Handle error here
@@ -170,12 +221,12 @@ class MapItem extends Draggable {
         arrowContainer.appendChild(arrow);
         tagTextContainer.appendChild(tagText);
         
-        return {tag, tagContainer, tagTextContainer, tagText};
+        return {tag, tagContainer, tagTextContainer, arrow, tagText};
     }
 
     //Run when this element is loaded into DOM
     runConfig() {
-        this.setTagDimensions();
+        //this.setTagDimensions();
     }
 
     showTag() {
@@ -186,23 +237,126 @@ class MapItem extends Draggable {
         this.element.removeChild(this.tag);
     }
 
+    getTagName() {
+        return this.tagText.textContent;
+    }
+
+    getPath() {
+        let path = this.getTagName(),
+            prevItem = this.map.parentItem;
+        while (prevItem) {
+            path = prevItem.getTagName() + " | " + path;
+            prevItem = prevItem.map.parentItem;
+        }
+        return path;
+    }
+
+    toggleTagDirection() {
+        switch (this.tagDirection) {
+            case TagDirection.RIGHT:
+                this.tagContainer.classList.remove("tag-container-right");
+                this.tagTextContainer.classList.remove("text-container-right");
+                this.tagArrow.classList.remove("arrow-right");
+           
+                //Bottom
+                this.tag.setAttribute("x", "-.5em");
+                this.tag.setAttribute("y", "1em");
+                this.tagContainer.classList.add("tag-container-bottom");
+                this.tagTextContainer.classList.add("text-container-bottom");
+                this.tagArrow.classList.add("arrow-bottom");
+                this.tagDirection = TagDirection.BOTTOM;
+            break;
+            case TagDirection.BOTTOM:
+                this.tagContainer.classList.remove("tag-container-bottom");
+                this.tagTextContainer.classList.remove("text-container-bottom");
+                this.tagArrow.classList.remove("arrow-bottom");
+           
+                //Left
+                this.tag.setAttribute("x", "-1em");
+                this.tag.setAttribute("y", "-.5em");
+                this.tagContainer.classList.add("tag-container-left");
+                this.tagTextContainer.classList.add("text-container-left");
+                this.tagArrow.classList.add("arrow-left");
+                this.tagDirection = TagDirection.LEFT;
+            break;
+            case TagDirection.LEFT:
+                this.tagContainer.classList.remove("tag-container-left");
+                this.tagTextContainer.classList.remove("text-container-left");
+                this.tagArrow.classList.remove("arrow-left");
+            
+                //Top
+                this.tag.setAttribute("x", "-.5em");
+                this.tag.setAttribute("y", "-3em");
+                this.tagContainer.classList.add("tag-container-top");
+                this.tagTextContainer.classList.add("text-container-top");
+                this.tagArrow.classList.add("arrow-top");
+                this.tagDirection = TagDirection.TOP;
+            break;
+            case TagDirection.TOP:
+                this.tagContainer.classList.remove("tag-container-top");
+                this.tagTextContainer.classList.remove("text-container-top");
+                this.tagArrow.classList.remove("arrow-top");
+               
+                //Right
+                this.tag.setAttribute("x", "1em");
+                this.tag.setAttribute("y", "-.5em");
+                this.tagContainer.classList.add("tag-container-right");
+                this.tagTextContainer.classList.add("text-container-right");
+                this.tagArrow.classList.add("arrow-right");
+                this.tagDirection = TagDirection.RIGHT;
+            break;
+            default: return;
+        }
+    }
+
     //Elements must enter the DOM first, else dimensions will be zero
+    //NOTE Might be opposite of intended effects...?
     setTagDimensions() {
-        /*
         let children = this.tagContainer.hasChildNodes() ? this.tagContainer.childNodes : null;
         if (children) {
             let width = 0,
                 height = 0;
             for (let i = 0; i < children.length; ++i) {
                 if (children[i] instanceof Element) {
-                    width += children[i].clientWidth;
-                    height = children[i].clientHeight > height ? children[i].clientHeight : height;
+                    switch (this.tagDirection) {
+                        case TagDirection.RIGHT:
+                            width += children[i].clientWidth;
+                            height = children[i].clientHeight > height ? children[i].clientHeight : height;
+                        case TagDirection.BOTTOM:    break;
+                        case TagDirection.LEFT:      break; 
+                        case TagDirection.TOP:       break;
+                        break;
+                        default: return;
+                    }
                 }
             }
             this.tag.setAttribute("width", width);
             this.tag.setAttribute("height", height);
         }
-        */
+    }
+
+    enterChildMap() {
+        if (!this.childMap) {
+            this.childMap = new Map();
+            this.childMap.parentItem = this;
+            let subItem1 = new MapItem("Sub item 1", 100, 50, Shape.CIRCLE, TagDirection.TOP, 
+                                       this.childMap.group, this.childMap, this.map);
+            this.childMap.append(subItem1);
+        }
+        if (this.map && this.childMap) {
+            this.childMap.setPath(this.getPath());
+            document.body.removeChild(this.map.container);
+            document.body.appendChild(this.childMap.container);
+            this.childMap.map.focus();
+        }
+    }
+
+    enterParentMap() {
+        if (this.map && this.parentMap) {
+            document.body.removeChild(this.map.container);
+            document.body.appendChild(this.parentMap.container);
+            this.parentMap.map.focus();
+        }
     }
 }
 
