@@ -2,8 +2,8 @@
 blueprint is a mind map that allows the user to create nodes, attach a tag to it, and connect 
 them with other nodes. These nodes can also enter into submap.
 
-![alt text](https://github.com/hueyjj/screenshots/example1.png "Example 1")
-![alt text](https://github.com/hueyjj/screenshots/example2.png "Example 2")
+![Example 1](https://raw.githubusercontent.com/hueyjj/blueprint/master/screenshots/Example1.PNG)
+![Example 2](https://raw.githubusercontent.com/hueyjj/blueprint/master/screenshots/Example2.PNG)
 
     n                               creates a node at the current mouse location
     m                               enters the sub map of the selected node
