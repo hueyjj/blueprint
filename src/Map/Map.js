@@ -90,8 +90,9 @@ class Map extends Draggable {
                     let translate = this.getTranslate(this.group);
                     let locX = this.mouseX - translate[0],
                         locY = this.mouseY - translate[1];
-                    let newItem = new MapItem("Sub item 1", locX, locY, Shape.CIRCLE, TagDirection.RIGHT, 
-                                               this.group, this, null);
+                    let newItem = new MapItem("[New item]", locX, locY, Shape.CIRCLE, TagDirection.RIGHT, 
+                                               this.group, this, 
+                                               this.parentItem ? this.parentItem.map : null);
                     this.append(newItem);
                     break;
                 default: return;

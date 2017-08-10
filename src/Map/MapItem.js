@@ -44,29 +44,28 @@ class MapItem extends Draggable {
             }
         }).bind(this));
         this.element.addEventListener("keyup", (function (event) {
-            event.stopPropagation();
             switch (event.key) {
-                case "Delete": this.map.remove(this);       break;
-                case "Backspace": this.map.remove(this);    break;
-                case "m": this.enterChildMap();             break;
+                case "Delete":      this.map.remove(this);  break;
+                case "Backspace":   this.map.remove(this);  break;
+                case "m":           this.enterChildMap();   break;
                 default: return;
             }
         }).bind(this));
-        this.map.container.addEventListener("keydown", (function (event) {
-            switch (event.key) {
-                case "b": this.enterParentMap();    break;
-                default: return;
-            }
-        }).bind(this));
+        //this.map.map.addEventListener("keydown", (function (event) {
+        //    switch (event.key) {
+        //        case "b": this.enterParentMap();    break;
+        //        default: return;
+        //    }
+        //}).bind(this));
         
         //Dragging
         this.element.onmousedown = (function (event) { 
-            this.startDragging(event.clientX, event.clientY); 
             event.stopPropagation(); 
+            this.startDragging(event.clientX, event.clientY); 
         }).bind(this);
         this.element.onmouseup = (function (event) { 
-            this.endDragging(); 
             event.stopPropagation(); 
+            this.endDragging(); 
         }).bind(this);
        
         //Tag
@@ -76,11 +75,13 @@ class MapItem extends Draggable {
             //this.setTagDimensions();
         }).bind(this));
         this.tagTextContainer.addEventListener("dblclick", (function (event) {
+            event.stopPropagation(); 
             this.tagText.contentEditable = "true";
             this.tagText.focus();
             this.tagFocus = true;
         }).bind(this));
         this.tagTextContainer.addEventListener("contextmenu", (function (event) {
+            event.stopPropagation(); 
             this.toggleTagDirection();
         }).bind(this));
         this.tagTextContainer.addEventListener("mousedown", (function (event) {
@@ -339,9 +340,17 @@ class MapItem extends Draggable {
         if (!this.childMap) {
             this.childMap = new Map();
             this.childMap.parentItem = this;
-            let subItem1 = new MapItem("Sub item 1", 100, 50, Shape.CIRCLE, TagDirection.TOP, 
-                                       this.childMap.group, this.childMap, this.map);
-            this.childMap.append(subItem1);
+            this.childMap.map.addEventListener("keydown", (function (event) {
+                switch (event.key) {
+                    case "b":
+                        //Return to parent map
+                        document.body.removeChild(this.childMap.container);
+                        document.body.appendChild(this.map.container);
+                        this.map.map.focus();
+                        break;
+                    default: return;
+                }
+            }).bind(this));
         }
         if (this.map && this.childMap) {
             this.childMap.setPath(this.getPath());
@@ -352,11 +361,12 @@ class MapItem extends Draggable {
     }
 
     enterParentMap() {
-        if (this.map && this.parentMap) {
-            document.body.removeChild(this.map.container);
-            document.body.appendChild(this.parentMap.container);
-            this.parentMap.map.focus();
-        }
+        //if (this.map && this.parentMap 
+        //    && !document.body.contains(this.parentMap.container)) {
+        //    document.body.removeChild(this.map.container);
+        //    document.body.appendChild(this.parentMap.container);
+        //    this.parentMap.map.focus();
+        //}
     }
 }
 
